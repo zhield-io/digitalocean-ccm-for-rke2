@@ -473,11 +473,15 @@ func (l *loadBalancers) nodesToDropletIDs(ctx context.Context, nodes []*v1.Node)
 	for _, node := range nodes {
 		providerID := node.Spec.ProviderID
 		if providerID != "" {
-			dropletID, err := dropletIDFromProviderID(providerID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse provider ID %q: %s", providerID, err)
+			if dropletID, err := dropletIDFromProviderID(providerID); err == nil {
+				dropletIDs = append(dropletIDs, dropletID)
+			} else {
+				// ! don't fail here as we can still match by name (not ideal)
+				// ! another option is to use another label in the node to pick
+				// ! the droplet ID, e.g., node.Labels["dropletID"]
+				// https://github.com/digitalocean/digitalocean-cloud-controller-manager/blob/master/docs/getting-started.md#--provider-iddigitaloceandroplet-id
+				missingDroplets[node.Name] = true
 			}
-			dropletIDs = append(dropletIDs, dropletID)
 		} else {
 			missingDroplets[node.Name] = true
 		}
