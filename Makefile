@@ -77,6 +77,10 @@ build: compile
 	@echo "==> Building the docker image"
 	@docker build -t $(REGISTRY)/digitalocean-cloud-controller-manager:$(VERSION) -f cloud-controller-manager/cmd/digitalocean-cloud-controller-manager/Dockerfile .
 
+.PHONY: custom-image
+custom-image: clean compile
+	@echo "==> Building the docker image"
+	@docker build -t ghcr.io/zhield-io/digitalocean-cloud-controller-manager:$(VERSION) -f cloud-controller-manager/cmd/digitalocean-cloud-controller-manager/Dockerfile .
 
 .PHONY: push
 push:
